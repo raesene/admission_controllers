@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start up the kind cluster
+  hosts: localhost
+  vars:
+    cluster_name: kyverno
+    container_name: kyverno-control-plane
+    kubernetes_version: v1.18.2
+
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kind.yaml
+
+- name: Setup cluster
+  hosts: kyverno-control-plane
+  connection: docker
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kubeconfig.yaml
+
+  - name: Copy Kyverno install manifest
+    copy: 
+      src: manifests/kyverno-install.yaml
+      dest: /root/kyverno-install.yaml
+
+  - name: Apply Gatekeeper Manifest
+    command: kubectl create -f /root/kyverno-install.yaml

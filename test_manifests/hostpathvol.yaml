@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpathvolpod
+spec:
+  containers:
+  - name: privpod
+    image: raesene/alpine-containertools
+    volumeMounts:
+    - mountPath: /node
+      name: hostpathvol
+  volumes:
+  - name: hostpathvol
+    hostPath:
+      path: /

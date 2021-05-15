@@ -1,0 +1,36 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start up the kind cluster
+  hosts: localhost
+  vars:
+    cluster_name: krail
+    container_name: krail-control-plane
+    kubernetes_version: v1.20.2
+
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kind.yaml
+
+- name: Setup cluster
+  hosts: krail-control-plane
+  connection: docker
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kubeconfig.yaml
+
+  - name: add a pause for the system pods otherwise k-rails fail closed defaults stop them running...
+    pause:
+      minutes: 1
+
+  - name: Add k-rail repo.
+    command: helm repo add k-rail https://cruise-automation.github.io/k-rail/
+
+  - name: Add namespace for k-rail
+    command: kubectl create namespace k-rail 
+    
+  - name: Set k-rail to ignore its own namespace
+    command: kubectl label namespace k-rail k-rail/ignore=true
+
+  - name: Apply k-rail Manifest
+    command: helm install k-rail k-rail/k-rail --namespace k-rail

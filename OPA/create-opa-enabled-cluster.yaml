@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start up the kind cluster
+  hosts: localhost
+  vars:
+    cluster_name: opa
+    container_name: opa-control-plane
+    kubernetes_version: v1.18.2
+
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kind.yaml
+
+- name: Setup cluster
+  hosts: opa-control-plane
+  connection: docker
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kubeconfig.yaml
+
+  - name: Copy Gatekeeper manifest
+    copy: 
+      src: manifests/gatekeeper-3.3.yaml
+      dest: /root/gatekeeper-3.3.yaml
+
+  - name: Apply Gatekeeper Manifest
+    command: kubectl create -f /root/gatekeeper-3.3.yaml

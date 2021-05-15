@@ -1,0 +1,26 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start up the kind cluster
+  hosts: localhost
+  vars:
+    cluster_name: kubewarden
+    container_name: kubewarden-control-plane
+    kubernetes_version: v1.20.2
+
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kind.yaml
+
+- name: Setup cluster
+  hosts: kubewarden-control-plane
+  connection: docker
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  
+  tasks:
+  - import_tasks: ../ansible_tasks/setup_kubeconfig.yaml
+
+  - name: Add kubewarden repo.
+    command: helm repo add kubewarden https://charts.kubewarden.io
+
+  - name: Apply kubewarden Manifest
+    command: helm install --create-namespace -n kubewarden kubewarden-controller kubewarden/kubewarden-controller
