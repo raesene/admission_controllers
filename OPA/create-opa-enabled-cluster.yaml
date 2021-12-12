@@ -5,7 +5,7 @@
   vars:
     cluster_name: opa
     container_name: opa-control-plane
-    kubernetes_version: v1.18.2
+    kubernetes_version: v1.23.0
 
   tasks:
   - import_tasks: ../ansible_tasks/setup_kind.yaml
@@ -19,10 +19,5 @@
   tasks:
   - import_tasks: ../ansible_tasks/setup_kubeconfig.yaml
 
-  - name: Copy Gatekeeper manifest
-    copy: 
-      src: manifests/gatekeeper-3.3.yaml
-      dest: /root/gatekeeper-3.3.yaml
-
   - name: Apply Gatekeeper Manifest
-    command: kubectl create -f /root/gatekeeper-3.3.yaml
+    command: kubectl create -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/release-3.7/deploy/gatekeeper.yaml

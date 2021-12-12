@@ -5,7 +5,7 @@
   vars:
     cluster_name: kubewarden
     container_name: kubewarden-control-plane
-    kubernetes_version: v1.20.2
+    kubernetes_version: v1.23.0
 
   tasks:
   - import_tasks: ../ansible_tasks/setup_kind.yaml

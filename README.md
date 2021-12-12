@@ -21,3 +21,16 @@ An idea for this project would be to create sets of manifests that may bypass po
 ## Creating Policy Enabled Clusters
 
 In each directory named for a project, there is an Ansible Playbook, which you can run to create a kind cluster with the policy engine enabled. Just run `ansible-playbook <name>`. This should startup the cluster and set your kubeconfig to point to the context for that cluster.
+
+
+## Customkind images
+
+The images used for the clusters are customkind, which is basically the `kindest/node` image with ansible installed, so it works ok with the playbook. you can create one building a Dockerfile that looks something like this (with the helm binary in the relevant dir)
+
+```
+FROM kindest/node:v1.23.0
+
+RUN apt update && apt install -y python3
+
+COPY ./files/helm /usr/local/bin/
+```
